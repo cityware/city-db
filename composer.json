@@ -33,7 +33,6 @@
         "zendframework/zend-config": "Zend\\Config component",
         "zendframework/zend-db": "Zend\\Db component"
     },
-    "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
