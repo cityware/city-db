@@ -1,6 +1,6 @@
 {
     "name": "cityware/city-db",
-    "description": " ",
+    "description": "Cityware Database",
     "license": "GPL-3.0",
     "keywords": [
         "cityware",
@@ -30,6 +30,7 @@
         "zendframework/zend-config": "Zend\\Config component",
         "zendframework/zend-db": "Zend\\Db component"
     },
+    "minimum-stability":"dev",
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
