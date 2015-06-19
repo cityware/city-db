@@ -1,0 +1,49 @@
+{
+    "name": "cityware/city-db",
+    "description": " ",
+    "license": "GPL-3.0",
+    "keywords": [
+        "cityware",
+        "db"
+    ],
+    "homepage": "https://github.com/cityware/city-db",
+    "autoload": {
+        "psr-4": {
+            "Cityware\\Db\\": "src/"
+        },
+        "psr-0": {
+            "Cityware\\Db\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.3.23"
+    },
+    "autoload": {
+      "classmap": [
+        "src/"
+      ]
+    },
+    "require-dev": {
+        "zendframework/zend-servicemanager": "~2.5",
+        "fabpot/php-cs-fixer": "1.7.*",
+        "phpunit/PHPUnit": "~4.0"
+    },
+    "suggest": {
+        "ext-intl": "Required for most features of Zend\\I18n; included in default builds of PHP",
+        "zendframework/zend-config": "Zend\\Config component",
+        "zendframework/zend-db": "Zend\\Db component"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev",
+            "dev-develop": "1.1-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CitywareTest\\Db\\": "test/"
+        }
+    }
+}
