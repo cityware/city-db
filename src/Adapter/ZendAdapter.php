@@ -36,8 +36,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlOffset = "",
             $varSqlSchema = null,
             $varCacheKey = null,
-            $varSqlDistinct = false,
-            $varConfigAdapter = null;
+            $varSqlDistinct = false;
 
     /**
      * Conexão padrão
@@ -407,7 +406,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
         $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->rollback();
         return $this;
     }
-    
+
     /**
      * Função utilizada para definir chamada de TRANSACTION identificada
      * @param string $transactionId
@@ -1606,16 +1605,14 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private static function freeMemory() {
         $variaveis = get_class_vars(get_class());
-
         foreach ($variaveis as $nome => $valor) {
             $varChecker = new \ReflectionProperty(__CLASS__, $nome);
-
             if ($varChecker->isStatic()) {
                 if (is_array($valor)) {
-                    eval('self::$' . $nome . ' = NULL;');
-                    eval('self::$' . $nome . ' = Array();');
+                    self::${$nome} = NULL;
+                    self::${$nome} = Array();
                 } else {
-                    eval('self::$' . $nome . ' = NULL;');
+                    self::${$nome} = NULL;
                 }
             }
         }
@@ -1626,18 +1623,17 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private static function freeMemoryUnion() {
         $variaveis = get_class_vars(get_class());
-
         foreach ($variaveis as $nome => $valor) {
             if ($nome != 'varSqlUnion') {
-
-                if (is_array($valor)) {
-                    eval('self::$' . $nome . ' = NULL;');
-                    eval('self::$' . $nome . ' = Array();');
-                } else {
-                    eval('self::$' . $nome . ' = NULL;');
+                $varChecker = new \ReflectionProperty(__CLASS__, $nome);
+                if ($varChecker->isStatic()) {
+                    if (is_array($valor)) {
+                        self::${$nome} = NULL;
+                        self::${$nome} = Array();
+                    } else {
+                        self::${$nome} = NULL;
+                    }
                 }
-                
-                unset(static::${$nome});
             }
         }
     }
