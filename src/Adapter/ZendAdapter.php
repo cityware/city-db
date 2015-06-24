@@ -19,7 +19,7 @@ use Exception;
  */
 class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
-    private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array();
+    private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false, $varConfigAdapter = null;
     protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
@@ -37,8 +37,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlSchema = null,
             $varCacheKey = null,
             $varSqlDistinct = false,
-            $varConfigAdapter = null,
-            $varStatusTransaction = false;
+            $varConfigAdapter = null;
 
     /**
      * Conexão padrão
@@ -82,7 +81,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return object
      */
     public function getProfiler() {
-        return $this->getAdapter(self::$varConfigAdapter)->getProfiler();
+        return $this->getAdapter($this->varConfigAdapter)->getProfiler();
     }
 
     /**
@@ -106,7 +105,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function setAdapter($adapterName = null) {
-        self::$varConfigAdapter = $adapterName;
+        $this->varConfigAdapter = $adapterName;
         return $this;
     }
 
@@ -373,14 +372,11 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function transaction($adapterName = null) {
-        self::$varStatusTransaction = true;
+        $this->varStatusTransaction = true;
         if (!empty($adapterName)) {
-            $this->getAdapter($adapterName);
-            $this->executeSqlQuery('BEGIN TRANSACTION;');
-        } else {
-            $this->getAdapter(self::$varConfigAdapter);
-            $this->executeSqlQuery('BEGIN TRANSACTION;');
+            $this->setAdapter($adapterName);
         }
+        $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->beginTransaction();
         return $this;
     }
 
@@ -390,14 +386,11 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function commit($adapterName = null) {
-        self::$varStatusTransaction = false;
+        $this->varStatusTransaction = false;
         if (!empty($adapterName)) {
-            $this->getAdapter($adapterName);
-            $this->executeSqlQuery('COMMIT;');
-        } else {
-            $this->getAdapter(self::$varConfigAdapter);
-            $this->executeSqlQuery('COMMIT;');
+            $this->setAdapter($adapterName);
         }
+        $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->commit();
         return $this;
     }
 
@@ -407,14 +400,11 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function rollback($adapterName = null) {
-        self::$varStatusTransaction = false;
+        $this->varStatusTransaction = false;
         if (!empty($adapterName)) {
-            $this->getAdapter($adapterName);
-            $this->executeSqlQuery('ROLLBACK;');
-        } else {
-            $this->getAdapter($adapterName);
-            $this->executeSqlQuery('ROLLBACK;');
+            $this->setAdapter($adapterName);
         }
+        $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->rollback();
         return $this;
     }
     
@@ -425,12 +415,12 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function prepareTransaction($transactionId, $adapterName = null) {
-        self::$varStatusTransaction = true;
+        $this->varStatusTransaction = true;
         if (!empty($adapterName)) {
             $this->getAdapter($adapterName);
             $this->executeSqlQuery("PREPARE TRANSACTION '{$transactionId}';");
         } else {
-            $this->getAdapter(self::$varConfigAdapter);
+            $this->getAdapter($this->varConfigAdapter);
             $this->executeSqlQuery("PREPARE TRANSACTION '{$transactionId}';");
         }
         return $this;
@@ -443,12 +433,12 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function preparedCommit($transactionId, $adapterName = null) {
-        self::$varStatusTransaction = false;
+        $this->varStatusTransaction = false;
         if (!empty($adapterName)) {
             $this->getAdapter($adapterName);
             $this->executeSqlQuery("COMMIT PREPARED '{$transactionId}';");
         } else {
-            $this->getAdapter(self::$varConfigAdapter);
+            $this->getAdapter($this->varConfigAdapter);
             $this->executeSqlQuery("COMMIT PREPARED '{$transactionId}';");
         }
         return $this;
@@ -461,7 +451,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function preparedRollback($transactionId, $adapterName = null) {
-        self::$varStatusTransaction = false;
+        $this->varStatusTransaction = false;
         if (!empty($adapterName)) {
             $this->getAdapter($adapterName);
             $this->executeSqlQuery("ROLLBACK PREPARED '{$transactionId}';");
@@ -477,8 +467,8 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     public function closeConnection() {
-        if (!self::$varStatusTransaction) {
-            $this->getAdapter(self::$varConfigAdapter)->getDriver()->getConnection()->disconnect();
+        if (!$this->varStatusTransaction) {
+            $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->disconnect();
         }
         return $this;
     }
@@ -526,7 +516,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $select = $sql->select();
 
             //$sql->getSqlPlatform();
@@ -706,7 +696,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $select = $sql->select();
 
             //$sql->getSqlPlatform();
@@ -868,7 +858,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND\DB\SQL
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $select = $sql->select();
 
             //$sql->getSqlPlatform();
@@ -1070,7 +1060,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @throws \Exception
      */
     public function executeSqlQuery($sqlQuery, $activationPaginator = false, $pageNumber = 1, $limitPerPage = 10) {
-        $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+        $sql = new Sql($this->getAdapter($this->varConfigAdapter));
         /*
          * RETIRA CARACTERES INVALIDOS DA QUERY
          */
@@ -1087,7 +1077,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
         if (!empty($varSqlQuery)) {
             try {
 
-                $query = $this->getAdapter(self::$varConfigAdapter)->query($varSqlQuery);
+                $query = $this->getAdapter($this->varConfigAdapter)->query($varSqlQuery);
 
                 /*
                  * CASO O DEBUG ESTEJA ATIVO IMPRIME A QUERY (COMANDO) NA TELA
@@ -1156,7 +1146,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $update = $sql->update();
 
             /*
@@ -1236,7 +1226,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
 
             $insert = $sql->insert();
 
@@ -1301,7 +1291,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $insert = $sql->insert();
 
             /*
@@ -1362,7 +1352,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $delete = $sql->delete();
 
             /*
@@ -1434,7 +1424,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             /*
              * INICIALIZA A QUERY PELO ZEND_DB
              */
-            $sql = new Sql($this->getAdapter(self::$varConfigAdapter));
+            $sql = new Sql($this->getAdapter($this->varConfigAdapter));
             $delete = $sql->delete();
 
             /*
@@ -1498,7 +1488,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
         $sequenceResult = array();
 
         $table = $rawState['table'];
-        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter(self::$varConfigAdapter));
+        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
         $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
 
         foreach ($tableInfo->getConstraints() as $key => $value) {
@@ -1510,7 +1500,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
         foreach ($tableInfo->getColumns() as $key => $value) {
             if (isset($sequenceResult[$value->getName()]) and ( stripos(strtolower($value->getColumnDefault()), 'nextval') !== false)) {
-                $statement = $this->getAdapter(self::$varConfigAdapter)->createStatement();
+                $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
                 $statement->prepare("SELECT {$value->getColumnDefault()}");
                 $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
                 $this->insert($value->getName(), $result['nextval']);
@@ -1527,7 +1517,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     public function executeNextSequenceId($sequence) {
 
-        $statement = $this->getAdapter(self::$varConfigAdapter)->createStatement();
+        $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
         $statement->prepare("SELECT {$sequence}");
         $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
 
@@ -1542,7 +1532,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private function getLastInsertId(array $rawState, $sql) {
         $table = $rawState['table'];
-        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter(self::$varConfigAdapter));
+        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
         $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
         $primaryKeyColumn = null;
         foreach ($tableInfo->getConstraints() as $key => $value) {
@@ -1583,7 +1573,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @param type $query
      */
     private function explainQuery($query) {
-        $explain = new ExecutionPlan($this->getAdapter(self::$varConfigAdapter)->getDriver()->getConnection()->getConnectionParameters());
+        $explain = new ExecutionPlan($this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->getConnectionParameters());
         $explain->explain($query);
 
         $return = null;
@@ -1646,6 +1636,8 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                 } else {
                     eval('self::$' . $nome . ' = NULL;');
                 }
+                
+                unset(static::${$nome});
             }
         }
     }
@@ -1657,7 +1649,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return string
      */
     public function getPrimaryColumn($table, $schema) {
-        $metadata = new zendMetadata($this->getAdapter(self::$varConfigAdapter));
+        $metadata = new zendMetadata($this->getAdapter($this->varConfigAdapter));
         $tableColumns = $metadata->getConstraints($table, $schema);
         $returnPrimaryColumn = null;
         foreach ($tableColumns as $value) {
@@ -1678,7 +1670,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return array
      */
     public function fromArray(array $arrayPost, $table, $schema) {
-        $metadata = new zendMetadata($this->getAdapter(self::$varConfigAdapter));
+        $metadata = new zendMetadata($this->getAdapter($this->varConfigAdapter));
         $tableColumns = $metadata->getColumns($table, $schema);
         $returnPost = Array();
 
