@@ -3,7 +3,6 @@
 namespace Cityware\Db\Adapter;
 
 use Zend\Db\Sql\Sql;
-//use Zend\Db\Sql\Select;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Expression;
 use Zend\Db\ResultSet\ResultSet;
