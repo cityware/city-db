@@ -73,9 +73,10 @@ abstract class AdapterAbstract
     /**
      * FUNCAO QUE DEFINE O PARAMETRO SEQUENCE
      * @param string $varSqlSequence
+     * @param string $schema
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
-    abstract public function sequence($varSqlSequence);
+    abstract public function sequence($varSqlSequence, $schema = null);
 
     /**
      * FUNCAO QUE DEFINE O PARAMETRO FROM
