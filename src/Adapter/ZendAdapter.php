@@ -308,7 +308,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             'table' => new TableIdentifier($varSqlTableJoin, $schema),
             'tableName' => $varSqlTableJoin,
             'alias' => $aliasTable,
-            'condition' => $condition,
+            'condition' => new Expression($condition),
             'type' => $type
         );
         array_push(self::$varSqlJoinUsing, $arraySqlJoinUsing);
