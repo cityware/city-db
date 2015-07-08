@@ -169,9 +169,9 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             foreach (self::$varSqlJoinUsing as $valueTableJoin) {
                 if ($valueTableJoin['tableName'] === $tableOrAliasTable OR $valueTableJoin['alias'] === $tableOrAliasTable) {
                     if (!empty($alias)) {
-                        self::$varSqlSelectJoinColumns[$valueTableJoin['tableName']][$alias] = $column;
+                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'].'.'.$valueTableJoin['tableName']][$alias] = $column;
                     } else {
-                        self::$varSqlSelectJoinColumns[$valueTableJoin['tableName']][] = $column;
+                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'].'.'.$valueTableJoin['tableName']][] = $column;
                     }
                 }
             }
@@ -563,12 +563,14 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                     if (!empty($value['alias'])) {
                         $tableJoin = Array($value['alias'] => $value['table']);
                         $tableName = $value['table']->getTable();
+                        $tableAlias = $value['alias'];
                     } else {
                         $tableJoin = $value['table'];
                         $tableName = $value['table']->getTable();
+                        $tableAlias = null;
                     }
 
-                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableName])) ? self::$varSqlSelectJoinColumns[$tableName] : Array();
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
@@ -743,12 +745,14 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                     if (!empty($value['alias'])) {
                         $tableJoin = Array($value['alias'] => $value['table']);
                         $tableName = $value['table']->getTable();
+                        $tableAlias = $value['alias'];
                     } else {
                         $tableJoin = $value['table'];
                         $tableName = $value['table']->getTable();
+                        $tableAlias = null;
                     }
 
-                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableName])) ? self::$varSqlSelectJoinColumns[$tableName] : Array();
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
@@ -905,26 +909,31 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                     if (!empty($value['alias'])) {
                         $tableJoin = Array($value['alias'] => $value['table']);
                         $tableName = $value['table']->getTable();
+                        $tableAlias = $value['alias'];
                     } else {
                         $tableJoin = $value['table'];
                         $tableName = $value['table']->getTable();
+                        $tableAlias = null;
                     }
+
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
+
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
-                            $select->join($tableJoin, $value['condition'], self::$varSqlSelectJoinColumns[$tableName], 'inner');
+                            $select->join($tableJoin, $value['condition'], $selectJoin, 'inner');
                             break;
                         case 'leftjoin':
-                            $select->join($tableJoin, $value['condition'], self::$varSqlSelectJoinColumns[$tableName], 'left');
+                            $select->join($tableJoin, $value['condition'], $selectJoin, 'left');
                             break;
                         case 'rightjoin':
-                            $select->join($tableJoin, $value['condition'], self::$varSqlSelectJoinColumns[$tableName], 'right');
+                            $select->join($tableJoin, $value['condition'], $selectJoin, 'right');
                             break;
                         case 'outerjoin':
-                            $select->join($tableJoin, $value['condition'], self::$varSqlSelectJoinColumns[$tableName], 'outer');
+                            $select->join($tableJoin, $value['condition'], $selectJoin, 'outer');
                             break;
                         default:
-                            $select->join($tableJoin, $value['condition'], self::$varSqlSelectJoinColumns[$tableName], 'inner');
+                            $select->join($tableJoin, $value['condition'], $selectJoin, 'inner');
                             break;
                     }
                 }
@@ -1266,7 +1275,6 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                 } else {
                     $retorno = $id;
                 }
-                
             } catch (Exception $exc) {
                 $this->closeConnection();
                 throw new Exception('Nao foi possível executar o comando INSERT no banco de dados!<br /><br />' . $insert->getSqlString() . '<br /><br />' . $exc->getMessage(), 500);
