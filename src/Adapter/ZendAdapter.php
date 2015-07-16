@@ -38,15 +38,18 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlDistinct = false,
             $varSqlSequence = null;
 
+    
+    public function __construct() {
+        $sessionRoute = new \Zend\Session\Container('globalRoute');
+        $sessionRoute->setExpirationSeconds(3600);
+        $this->aSession = $sessionRoute->getArrayCopy();
+    }
+    
     /**
      * Conexão padrão
      * @return \Zend\Db\Adapter\Adapter
      */
     public function getAdapter($adapterName = null) {
-
-        $sessionRoute = new SessionContainer('globalRoute');
-        $this->aSession = $sessionRoute->getArrayCopy();
-
         self::$resultSetPrototype = new ResultSet();
         $config = ZendConfigFile::fromFile(GLOBAL_CONFIG_PATH . 'global.php');
 
@@ -486,13 +489,18 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             throw new \Exception('Não foi definido a chave para gravação do cache!', 500);
         } else {
             $rsCache = \Cityware\Cache\Factory::factory();
+            $rsCache->setModuleName($this->aSession['moduleName']);
+            $rsCache->setControllerName($this->aSession['controllerName']);
+            $rsCache->preapareCache();
+            
+            $cacheKeyName = self::$varCacheKey;
         }
-
-        if ($rsCache->verifyCache(self::$varCacheKey . $pageNumber)) {
-            $retorno = $rsCache->getCacheContent(self::$varCacheKey . $pageNumber);
+        
+        if ($rsCache->verifyCache($cacheKeyName . $pageNumber)) {
+            $retorno = $rsCache->getCacheContent($cacheKeyName . $pageNumber);
         } else {
             $retorno = $this->executeSelectQuery($activationPaginator = false, $pageNumber, $limitPerPage);
-            $rsCache->saveCache(self::$varCacheKey . $pageNumber, $retorno);
+            $rsCache->saveCache($cacheKeyName . $pageNumber, $retorno);
         }
 
         return $retorno;
@@ -1046,13 +1054,17 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             throw new \Exception('A query executada não é um SELECT para ser gravado no cache!', 500);
         } else {
             $rsCache = \Cityware\Cache\Factory::factory();
+            $rsCache->setModuleName($this->aSession['moduleName']);
+            $rsCache->setControllerName($this->aSession['controllerName']);
+            $rsCache->preapareCache();
+            $cacheKeyName = self::$varCacheKey;
         }
 
-        if ($rsCache->verifyCache(self::$varCacheKey . $pageNumber)) {
-            $retorno = $rsCache->getCacheContent(self::$varCacheKey . $pageNumber);
+        if ($rsCache->verifyCache($cacheKeyName . $pageNumber)) {
+            $retorno = $rsCache->getCacheContent($cacheKeyName . $pageNumber);
         } else {
             $retorno = $this->executeSqlQuery($varSqlQuery, $activationPaginator, $pageNumber, $limitPerPage);
-            $rsCache->saveCache(self::$varCacheKey . $pageNumber, $retorno);
+            $rsCache->saveCache($cacheKeyName . $pageNumber, $retorno);
         }
 
         return $retorno;
