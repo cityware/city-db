@@ -26,6 +26,10 @@ abstract class AdapterAbstract
      */
     abstract public function setExplan($explan = false);
     
+    
+    abstract public function setReturnInsertId($varReturnInsertId);
+
+
     /**
      * FUNCAO QUE DEFINE A CHAVE DE VERIFICAÇÃO DE CACHE
      * @param string $cacheKey NOME DA CHAVE

@@ -18,7 +18,8 @@ use Exception;
  */
 class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
-    private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false, $varConfigAdapter = null;
+    private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
+            $varConfigAdapter = null;
     protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
@@ -36,20 +37,22 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlSchema = null,
             $varCacheKey = null,
             $varSqlDistinct = false,
-            $varSqlSequence = null;
+            $varSqlSequence = null,
+            $varReturnInsertId = true;
 
-    
     public function __construct() {
         $sessionRoute = new \Zend\Session\Container('globalRoute');
         $sessionRoute->setExpirationSeconds(3600);
         $this->aSession = $sessionRoute->getArrayCopy();
     }
-    
+
     /**
      * Conexão padrão
      * @return \Zend\Db\Adapter\Adapter
      */
     public function getAdapter($adapterName = null) {
+
+
         self::$resultSetPrototype = new ResultSet();
         $config = ZendConfigFile::fromFile(GLOBAL_CONFIG_PATH . 'global.php');
 
@@ -99,6 +102,14 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
     public function setLog($log = false) {
         $this->varExecuteLog = $log;
         return $this;
+    }
+
+    public static function setSession($session) {
+        self::$session = $session;
+    }
+
+    public function setReturnInsertId($varReturnInsertId) {
+        self::$varReturnInsertId = $varReturnInsertId;
     }
 
     /**
@@ -172,9 +183,9 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             foreach (self::$varSqlJoinUsing as $valueTableJoin) {
                 if ($valueTableJoin['tableName'] === $tableOrAliasTable OR $valueTableJoin['alias'] === $tableOrAliasTable) {
                     if (!empty($alias)) {
-                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'].'.'.$valueTableJoin['tableName']][$alias] = $column;
+                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'] . '.' . $valueTableJoin['tableName']][$alias] = $column;
                     } else {
-                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'].'.'.$valueTableJoin['tableName']][] = $column;
+                        self::$varSqlSelectJoinColumns[$valueTableJoin['alias'] . '.' . $valueTableJoin['tableName']][] = $column;
                     }
                 }
             }
@@ -492,10 +503,10 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $rsCache->setModuleName($this->aSession['moduleName']);
             $rsCache->setControllerName($this->aSession['controllerName']);
             $rsCache->preapareCache();
-            
+
             $cacheKeyName = self::$varCacheKey;
         }
-        
+
         if ($rsCache->verifyCache($cacheKeyName . $pageNumber)) {
             $retorno = $rsCache->getCacheContent($cacheKeyName . $pageNumber);
         } else {
@@ -578,7 +589,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                         $tableAlias = null;
                     }
 
-                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName] : Array();
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
@@ -760,7 +771,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                         $tableAlias = null;
                     }
 
-                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName] : Array();
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
@@ -924,8 +935,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                         $tableAlias = null;
                     }
 
-                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias.".".$tableName] : Array();
-
+                    $selectJoin = (isset(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName]) and ! empty(self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName])) ? self::$varSqlSelectJoinColumns[$tableAlias . "." . $tableName] : Array();
 
                     switch (strtolower($value['type'])) {
                         case 'innerjoin':
@@ -1515,30 +1525,32 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return array
      */
     private function nextSequenceIdRawStateTable(array $rawState) {
-        $sequenceResult = array();
-        $retorno = null;
+        if (self::$varReturnInsertId) {
+            $sequenceResult = array();
+            $retorno = null;
 
-        $table = $rawState['table'];
-        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
-        $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
+            $table = $rawState['table'];
+            $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
+            $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
 
-        foreach ($tableInfo->getConstraints() as $key => $value) {
-            if ($value->getType() == 'PRIMARY KEY') {
-                $temp = $value->getColumns();
-                $sequenceResult[$temp[0]] = true;
+            foreach ($tableInfo->getConstraints() as $key => $value) {
+                if ($value->getType() == 'PRIMARY KEY') {
+                    $temp = $value->getColumns();
+                    $sequenceResult[$temp[0]] = true;
+                }
             }
-        }
 
-        foreach ($tableInfo->getColumns() as $key => $value) {
-            if (isset($sequenceResult[$value->getName()]) and ( stripos(strtolower($value->getColumnDefault()), 'nextval') !== false)) {
-                $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
-                $statement->prepare("SELECT {$value->getColumnDefault()}");
-                $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
-                $this->insert($value->getName(), $result['nextval']);
-                $retorno = $result['nextval'];
+            foreach ($tableInfo->getColumns() as $key => $value) {
+                if (isset($sequenceResult[$value->getName()]) and ( stripos(strtolower($value->getColumnDefault()), 'nextval') !== false)) {
+                    $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
+                    $statement->prepare("SELECT {$value->getColumnDefault()}");
+                    $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
+                    $this->insert($value->getName(), $result['nextval']);
+                    $retorno = $result['nextval'];
+                }
             }
+            return $retorno;
         }
-        return $retorno;
     }
 
     /**
@@ -1562,37 +1574,40 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return integer
      */
     private function getLastInsertId(array $rawState, $sql) {
-        $table = $rawState['table'];
-        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
 
-        $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
+        if (self::$varReturnInsertId) {
+            $table = $rawState['table'];
+            $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
 
-        if (!empty(self::$varSqlSequence)) {
-            return $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->getLastGeneratedValue(self::$varSqlSequence);
-        } else {
-            $primaryKeyColumn = null;
-            foreach ($tableInfo->getConstraints() as $key => $value) {
-                if ($value->getType() == 'PRIMARY KEY') {
-                    $temp = $value->getColumns();
-                    $primaryKeyColumn = $temp[0];
+            $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
+
+            if (!empty(self::$varSqlSequence)) {
+                return $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->getLastGeneratedValue(self::$varSqlSequence);
+            } else {
+                $primaryKeyColumn = null;
+                foreach ($tableInfo->getConstraints() as $key => $value) {
+                    if ($value->getType() == 'PRIMARY KEY') {
+                        $temp = $value->getColumns();
+                        $primaryKeyColumn = $temp[0];
+                    }
                 }
-            }
 
-            $select = $sql->select($rawState['table']);
-            foreach ($rawState['columns'] as $key => $value) {
-                if (!empty($rawState['values'][$key])) {
-                    $select->where("{$value} = '{$rawState['values'][$key]}'");
-                } else {
-                    $select->where("{$value} IS NULL");
+                $select = $sql->select($rawState['table']);
+                foreach ($rawState['columns'] as $key => $value) {
+                    if (!empty($rawState['values'][$key])) {
+                        $select->where("{$value} = '{$rawState['values'][$key]}'");
+                    } else {
+                        $select->where("{$value} IS NULL");
+                    }
                 }
+
+                $statement = $sql->prepareStatementForSqlObject($select);
+                $results = $statement->execute();
+                $retorno = self::$resultSetPrototype->initialize($results)->toArray();
+                self::freeMemory();
+
+                return $retorno[0][$primaryKeyColumn];
             }
-
-            $statement = $sql->prepareStatementForSqlObject($select);
-            $results = $statement->execute();
-            $retorno = self::$resultSetPrototype->initialize($results)->toArray();
-            self::freeMemory();
-
-            return $retorno[0][$primaryKeyColumn];
         }
     }
 
@@ -1771,6 +1786,8 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $this->insert('ind_status', 'A');
             $this->from('tab_db_log', null, 'log');
             $this->setDebug(false);
+            $this->setReturnInsertId(false);
+            $this->setAdapter('adapter');
             $this->executeInsertQuery();
 
             $this->varExecuteLog = true;
