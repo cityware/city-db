@@ -19,7 +19,7 @@ use Exception;
 class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
     private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
-            $varConfigAdapter = null;
+            $varConfigAdapter = null, $varReturnInsertId = true;
     protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
@@ -37,8 +37,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlSchema = null,
             $varCacheKey = null,
             $varSqlDistinct = false,
-            $varSqlSequence = null,
-            $varReturnInsertId = true;
+            $varSqlSequence = null;
 
     public function __construct() {
         $sessionRoute = new \Zend\Session\Container('globalRoute');
@@ -109,7 +108,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
     }
 
     public function setReturnInsertId($varReturnInsertId) {
-        self::$varReturnInsertId = $varReturnInsertId;
+        $this->varReturnInsertId = $varReturnInsertId;
     }
 
     /**
@@ -1525,7 +1524,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return array
      */
     private function nextSequenceIdRawStateTable(array $rawState) {
-        if (self::$varReturnInsertId) {
+        if ($this->varReturnInsertId) {
             $sequenceResult = array();
             $retorno = null;
 
@@ -1575,7 +1574,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private function getLastInsertId(array $rawState, $sql) {
 
-        if (self::$varReturnInsertId) {
+        if ($this->varReturnInsertId) {
             $table = $rawState['table'];
             $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
 
