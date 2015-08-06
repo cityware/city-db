@@ -19,7 +19,7 @@ use Exception;
 class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
     private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
-            $varConfigAdapter = null, $varReturnInsertId = true;
+            $varConfigAdapter = null;
     protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
@@ -37,7 +37,8 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
             $varSqlSchema = null,
             $varCacheKey = null,
             $varSqlDistinct = false,
-            $varSqlSequence = null;
+            $varSqlSequence = null,
+            $varReturnInsertId = true;
 
     public function __construct() {
         $sessionRoute = new \Zend\Session\Container('globalRoute');
@@ -108,7 +109,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
     }
 
     public function setReturnInsertId($varReturnInsertId) {
-        $this->varReturnInsertId = $varReturnInsertId;
+        self::$varReturnInsertId = $varReturnInsertId;
     }
 
     /**
@@ -1524,7 +1525,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      * @return array
      */
     private function nextSequenceIdRawStateTable(array $rawState) {
-        if ($this->varReturnInsertId) {
+        if (self::$varReturnInsertId) {
             $sequenceResult = array();
             $retorno = null;
 
@@ -1574,7 +1575,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private function getLastInsertId(array $rawState, $sql) {
 
-        if ($this->varReturnInsertId) {
+        if (self::$varReturnInsertId) {
             $table = $rawState['table'];
             $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
 
@@ -1602,7 +1603,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
 
                 $statement = $sql->prepareStatementForSqlObject($select);
                 $results = $statement->execute();
-                $retorno = self::$resultSetPrototype->initialize($results)->toArray();
+            $retorno = self::$resultSetPrototype->initialize($results)->toArray();
                 self::freeMemory();
 
                 return $retorno[0][$primaryKeyColumn];
