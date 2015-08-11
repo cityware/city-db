@@ -680,6 +680,7 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                         $paginator->setCurrentPageNumber($pageNumber);
                         $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getItemsByPage($pageNumber))->toArray();
                         $retorno['page'] = $paginator;
+                        
                     } else {
                         $statement = $sql->prepareStatementForSqlObject($select);
                         $results = $statement->execute();
@@ -845,7 +846,8 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                  * CASO O DEBUG ESTEJA ATIVO IMPRIME A QUERY (COMANDO) NA TELA
                  */
                 if (self::$varDebug) {
-                    $this->debugQuery($select->getSqlString());
+                    $retorno = str_replace('"', '', $select->getSqlString());
+                    $this->debugQuery($retorno);
                 } elseif (self::$varExplan) {
                     $this->explainQuery($select->getSqlString());
                 } else {
@@ -1134,8 +1136,10 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
                         $paginator->setItemCountPerPage($limitPerPage);
                         $paginator->setPageRange(5);
                         $paginator->setCurrentPageNumber($pageNumber);
-                        $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getItemsByPage($pageNumber))->toArray();
+                        
+                        $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getCurrentItems())->toArray();
                         $retorno['page'] = $paginator;
+                        
                     } else {
                         $retorno = self::$resultSetPrototype->initialize($rowSet)->toArray();
                     }
