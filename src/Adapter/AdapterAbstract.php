@@ -20,16 +20,39 @@ abstract class AdapterAbstract
     abstract public function setDebug($debug = false);
     
     /**
+     * Função de definição de ativação de LOG
+     * @param type $log
+     * @return \Cityware\Db\Adapter\ZendAdapter
+     */
+    abstract public function setLog($log = false);
+    
+    /**
+     * Função de definição de sessão
+     * @param type $session
+     */
+    abstract public static function setSession($session);
+            
+    /**
+     * Função que define se haverá retorno no INSERT
+     * @param type $varReturnInsertId
+     */
+    abstract public function setReturnInsertId($varReturnInsertId);
+
+
+    /**
+     * Função que define o adaptador de conexção a ser utilizado
+     * @param string $adapterName
+     * @return \Cityware\Db\Adapter\ZendAdapter
+     */
+    abstract public function setAdapter($adapterName = null);
+    
+    /**
      * Função que define a exibição do debug
      * @param boolean $explan
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function setExplan($explan = false);
     
-    
-    abstract public function setReturnInsertId($varReturnInsertId);
-
-
     /**
      * FUNCAO QUE DEFINE A CHAVE DE VERIFICAÇÃO DE CACHE
      * @param string $cacheKey NOME DA CHAVE

@@ -99,15 +99,28 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
         return $this;
     }
 
+    /**
+     * Função de definição de ativação de LOG
+     * @param type $log
+     * @return \Cityware\Db\Adapter\ZendAdapter
+     */
     public function setLog($log = false) {
         $this->varExecuteLog = $log;
         return $this;
     }
 
+    /**
+     * Função de definição de sessão
+     * @param type $session
+     */
     public static function setSession($session) {
         self::$session = $session;
     }
 
+    /**
+     * Função que define se haverá retorno no INSERT
+     * @param type $varReturnInsertId
+     */
     public function setReturnInsertId($varReturnInsertId) {
         self::$varReturnInsertId = $varReturnInsertId;
     }
