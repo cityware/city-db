@@ -25,13 +25,7 @@ abstract class AdapterAbstract
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function setLog($log = false);
-    
-    /**
-     * Função de definição de sessão
-     * @param type $session
-     */
-    abstract public static function setSession($session);
-            
+           
     /**
      * Função que define se haverá retorno no INSERT
      * @param type $varReturnInsertId

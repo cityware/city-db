@@ -1543,31 +1543,31 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
      */
     private function nextSequenceIdRawStateTable(array $rawState) {
         if (self::$varReturnInsertId) {
-            $sequenceResult = array();
-            $retorno = null;
+        $sequenceResult = array();
+        $retorno = null;
 
-            $table = $rawState['table'];
-            $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
-            $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
+        $table = $rawState['table'];
+        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
+        $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
 
-            foreach ($tableInfo->getConstraints() as $key => $value) {
-                if ($value->getType() == 'PRIMARY KEY') {
-                    $temp = $value->getColumns();
-                    $sequenceResult[$temp[0]] = true;
-                }
+        foreach ($tableInfo->getConstraints() as $key => $value) {
+            if ($value->getType() == 'PRIMARY KEY') {
+                $temp = $value->getColumns();
+                $sequenceResult[$temp[0]] = true;
             }
-
-            foreach ($tableInfo->getColumns() as $key => $value) {
-                if (isset($sequenceResult[$value->getName()]) and ( stripos(strtolower($value->getColumnDefault()), 'nextval') !== false)) {
-                    $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
-                    $statement->prepare("SELECT {$value->getColumnDefault()}");
-                    $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
-                    $this->insert($value->getName(), $result['nextval']);
-                    $retorno = $result['nextval'];
-                }
-            }
-            return $retorno;
         }
+
+        foreach ($tableInfo->getColumns() as $key => $value) {
+            if (isset($sequenceResult[$value->getName()]) and ( stripos(strtolower($value->getColumnDefault()), 'nextval') !== false)) {
+                $statement = $this->getAdapter($this->varConfigAdapter)->createStatement();
+                $statement->prepare("SELECT {$value->getColumnDefault()}");
+                $result = $statement->execute()->getResource()->fetch(\PDO::FETCH_ASSOC);
+                $this->insert($value->getName(), $result['nextval']);
+                $retorno = $result['nextval'];
+            }
+        }
+        return $retorno;
+    }
     }
 
     /**
@@ -1593,39 +1593,39 @@ class ZendAdapter extends AdapterAbstract implements AdapterInterface {
     private function getLastInsertId(array $rawState, $sql) {
 
         if (self::$varReturnInsertId) {
-            $table = $rawState['table'];
-            $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
+        $table = $rawState['table'];
+        $tableMetadata = new \Zend\Db\Metadata\Metadata($this->getAdapter($this->varConfigAdapter));
 
-            $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
+        $tableInfo = $tableMetadata->getTable($table->getTable(), $table->getSchema());
 
-            if (!empty(self::$varSqlSequence)) {
-                return $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->getLastGeneratedValue(self::$varSqlSequence);
-            } else {
-                $primaryKeyColumn = null;
-                foreach ($tableInfo->getConstraints() as $key => $value) {
-                    if ($value->getType() == 'PRIMARY KEY') {
-                        $temp = $value->getColumns();
-                        $primaryKeyColumn = $temp[0];
-                    }
+        if (!empty(self::$varSqlSequence)) {
+            return $this->getAdapter($this->varConfigAdapter)->getDriver()->getConnection()->getLastGeneratedValue(self::$varSqlSequence);
+        } else {
+            $primaryKeyColumn = null;
+            foreach ($tableInfo->getConstraints() as $key => $value) {
+                if ($value->getType() == 'PRIMARY KEY') {
+                    $temp = $value->getColumns();
+                    $primaryKeyColumn = $temp[0];
                 }
-
-                $select = $sql->select($rawState['table']);
-                foreach ($rawState['columns'] as $key => $value) {
-                    if (!empty($rawState['values'][$key])) {
-                        $select->where("{$value} = '{$rawState['values'][$key]}'");
-                    } else {
-                        $select->where("{$value} IS NULL");
-                    }
-                }
-
-                $statement = $sql->prepareStatementForSqlObject($select);
-                $results = $statement->execute();
-            $retorno = self::$resultSetPrototype->initialize($results)->toArray();
-                self::freeMemory();
-
-                return $retorno[0][$primaryKeyColumn];
             }
+
+            $select = $sql->select($rawState['table']);
+            foreach ($rawState['columns'] as $key => $value) {
+                if (!empty($rawState['values'][$key])) {
+                    $select->where("{$value} = '{$rawState['values'][$key]}'");
+                } else {
+                    $select->where("{$value} IS NULL");
+                }
+            }
+
+            $statement = $sql->prepareStatementForSqlObject($select);
+            $results = $statement->execute();
+            $retorno = self::$resultSetPrototype->initialize($results)->toArray();
+            self::freeMemory();
+
+            return $retorno[0][$primaryKeyColumn];
         }
+    }
     }
 
     /**
