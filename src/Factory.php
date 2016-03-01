@@ -53,7 +53,7 @@ abstract class Factory
 
         switch (strtolower($adapter)) {
             case 'zend':
-                return new Adapter\ZendAdapter();
+                return new Adapter\Zend();
                 break;
             default:
                 throw new \Cityware\Exception\InvalidArgumentException('Adaptador não definico');

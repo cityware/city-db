@@ -2,8 +2,8 @@
 
 namespace Cityware\Db\Adapter;
 
-abstract class AdapterAbstract
-{
+abstract class AdapterAbstract {
+
     /**
      * Conexão padrão
      * @param string $adapterName
@@ -11,7 +11,6 @@ abstract class AdapterAbstract
      * @throws Exception
      */
     abstract public function getAdapter($adapterName = null);
-
 
     /**
      * Função que define a exibição do debug
@@ -31,7 +30,6 @@ abstract class AdapterAbstract
      * @param type $varReturnInsertId
      */
     abstract public function setReturnInsertId($varReturnInsertId);
-
 
     /**
      * Função que define o adaptador de conexção a ser utilizado
@@ -233,6 +231,22 @@ abstract class AdapterAbstract
     abstract public function executeSubSelectQuery();
     
     /**
+     * FUNCAO QUE DEFINE A QUERY COMO SENDO SUBQUERY DE UNION
+     * @return boolean
+     */
+    abstract public function setUnionQuery();
+
+    /**
+     * FUNCAO QUE MONTA O COMANDO UNION DE SUB-SELECT NO BANCO DE DADOS E EXECUTA
+     * @param  boolean $activationPaginator
+     * @param  integer $pageNumber
+     * @param  integer $limitPerPage
+     * @return mixed
+     * @throws Exception
+     */
+    abstract public function executeUnionSelectQuery($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
+
+    /**
      * FUNCAO QUE EXECUTA O COMANDO SELECT NO BANCO DE DADOS
      * @param  boolean $activationPaginator
      * @param  integer $pageNumber
@@ -299,6 +313,7 @@ abstract class AdapterAbstract
      * @return boolean
      * @throws \Exception
      */
+
     abstract public function executeDeleteQuery();
     
     /*
@@ -306,6 +321,7 @@ abstract class AdapterAbstract
      * @return boolean
      * @throws \Exception
      */
+
     abstract public function statementDeleteQuery();
     
     /**
@@ -315,7 +331,6 @@ abstract class AdapterAbstract
      */
     abstract public function executeNextSequenceId($sequence);
 
-    
     /**
      * Função que pega a coluna de PK
      * @param string $table
