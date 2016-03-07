@@ -530,6 +530,36 @@ class Zend extends AdapterAbstract implements AdapterInterface {
 
         return $retorno;
     }
+    
+    /**
+     * FUNCAO QUE MONTA O COMANDO UNION DE SUB-SELECT NO BANCO DE DADOS OU BUSCA NO CACHE GRAVADO
+     * @param  boolean $activationPaginator
+     * @param  integer $pageNumber
+     * @param  integer $limitPerPage
+     * @return mixed
+     * @throws \Exception
+     */
+    public function executeUnionSelectQueryCache($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10) {
+        if (empty(self::$varCacheKey)) {
+            throw new \Exception('Não foi definido a chave para gravação do cache!', 500);
+        } else {
+            $rsCache = \Cityware\Cache\Factory::factory();
+            $rsCache->setModuleName($this->aSession['moduleName']);
+            $rsCache->setControllerName($this->aSession['controllerName']);
+            $rsCache->preapareCache();
+
+            $cacheKeyName = self::$varCacheKey;
+        }
+
+        if ($rsCache->verifyCache($cacheKeyName . $pageNumber)) {
+            $retorno = $rsCache->getCacheContent($cacheKeyName . $pageNumber);
+        } else {
+            $retorno = $this->executeUnionSelectQuery($activationPaginator = false, $pageNumber, $limitPerPage);
+            $rsCache->saveCache($cacheKeyName . $pageNumber, $retorno);
+        }
+
+        return $retorno;
+    }
 
     /**
      * FUNCAO QUE EXECUTA O COMANDO SELECT NO BANCO DE DADOS

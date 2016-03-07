@@ -224,6 +224,16 @@ abstract class AdapterAbstract {
     abstract public function executeSelectQueryCache($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
 
     /**
+     * FUNCAO QUE MONTA O COMANDO UNION DE SUB-SELECT NO BANCO DE DADOS OU BUSCA NO CACHE GRAVADO
+     * @param  boolean $activationPaginator
+     * @param  integer $pageNumber
+     * @param  integer $limitPerPage
+     * @return mixed
+     * @throws \Exception
+     */
+    abstract public function executeUnionSelectQueryCache($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
+    
+    /**
      * FUNCAO QUE MONTA O COMANDO SUB-SELECT NO BANCO DE DADOS E RETORNA A STRING
      * @return mixed
      * @throws Exception
