@@ -10,8 +10,8 @@
 
 namespace Cityware\Db;
 
-abstract class Factory
-{
+abstract class Factory {
+
     /**
      * Adapter plugin manager
      * @var AdapterPluginManager
@@ -33,12 +33,9 @@ abstract class Factory
      * @throws Exception\InvalidArgumentException for a non-array, non-Traversable $options
      * @throws Exception\DomainException          if class is missing or invalid
      */
-    public static function factory($adapter = 'zend')
-    {
+    public static function factory($adapter = 'zend') {
         if (!is_string($adapter)) {
-            throw new \Cityware\Exception\InvalidArgumentException(sprintf(
-                            '%s expects an string or Traversable argument; received "%s"', __METHOD__, (is_object($adapter) ? get_class($adapter) : gettype($adapter))
-            ));
+            throw new \Cityware\Exception\InvalidArgumentException(sprintf('%s expects an string or Traversable argument; received "%s"', __METHOD__, (is_object($adapter) ? get_class($adapter) : gettype($adapter))));
         }
 
         if (isset(static::$classMap[strtolower($adapter)])) {
@@ -46,9 +43,7 @@ abstract class Factory
         }
 
         if (!class_exists($class)) {
-            throw new \Cityware\Exception\DomainException(
-                    sprintf('%s expects the "class" to resolve to an existing class; received "%s"', __METHOD__, $class)
-            );
+            throw new \Cityware\Exception\DomainException(sprintf('%s expects the "class" to resolve to an existing class; received "%s"', __METHOD__, $class));
         }
 
         switch (strtolower($adapter)) {
