@@ -22,7 +22,7 @@ abstract class Factory
      * @var array Known captcha types
      */
     protected static $classMap = array(
-        'zend' => 'Cityware\Db\Adapter\ZendAdapter',
+        'zend' => 'Cityware\Db\Adapter\Zend',
     );
 
     /**
