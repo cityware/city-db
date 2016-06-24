@@ -5,6 +5,7 @@ namespace Cityware\Db\Adapter;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Expression;
+use Zend\Db\ResultSet\ResultSet;
 use Zend\Config\Factory AS ZendConfigFile;
 use Zend\Db\Metadata\Metadata AS zendMetadata;
 use Zend\Session\Container as SessionContainer;
@@ -19,7 +20,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
 
     private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
             $varConfigAdapter = null;
-    protected static $session, $varDebug, $varExplan, $serviceLocator;
+    protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
             $varSqlSelectJoinColumns = Array(),
@@ -53,6 +54,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
     public function getAdapter($adapterName = null) {
 
 
+        self::$resultSetPrototype = new ResultSet();
         $config = ZendConfigFile::fromFile(GLOBAL_CONFIG_PATH . 'global.php');
 
         if (empty($adapterName)) {
@@ -726,6 +728,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                     } else {
                         $statement = $sql->prepareStatementForSqlObject($select);
                         $results = $statement->execute();
+                        
                         $retorno = self::$resultSetPrototype->initialize($results)->toArray();
                     }
                 }
