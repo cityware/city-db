@@ -5,7 +5,6 @@ namespace Cityware\Db\Adapter;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Expression;
-use Zend\Db\ResultSet\ResultSet;
 use Zend\Config\Factory AS ZendConfigFile;
 use Zend\Db\Metadata\Metadata AS zendMetadata;
 use Zend\Session\Container as SessionContainer;
@@ -20,7 +19,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
 
     private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
             $varConfigAdapter = null;
-    protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
+    protected static $session, $varDebug, $varExplan, $serviceLocator;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
             $varSqlSelectJoinColumns = Array(),
@@ -54,7 +53,6 @@ class Zend extends AdapterAbstract implements AdapterInterface {
     public function getAdapter($adapterName = null) {
 
 
-        self::$resultSetPrototype = new ResultSet();
         $config = ZendConfigFile::fromFile(GLOBAL_CONFIG_PATH . 'global.php');
 
         if (empty($adapterName)) {
@@ -530,7 +528,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
 
         return $retorno;
     }
-    
+
     /**
      * FUNCAO QUE MONTA O COMANDO UNION DE SUB-SELECT NO BANCO DE DADOS OU BUSCA NO CACHE GRAVADO
      * @param  boolean $activationPaginator
@@ -722,7 +720,8 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                         //$paginator->setDefaultPageRange(5);
                         $paginator->setPageRange(5);
                         $paginator->setCurrentPageNumber($pageNumber);
-                        $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getItemsByPage($pageNumber))->toArray();
+
+                        $retorno['db'] = \Cityware\Format\Arrays::getObjectToArray($paginator->getItemsByPage($pageNumber));
                         $retorno['page'] = $paginator;
                     } else {
                         $statement = $sql->prepareStatementForSqlObject($select);
@@ -1179,7 +1178,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                         //$paginator->setDefaultPageRange(5);
                         $paginator->setPageRange(5);
                         $paginator->setCurrentPageNumber($pageNumber);
-                        $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getItemsByPage($pageNumber))->toArray();
+                        $retorno['db'] = \Cityware\Format\Arrays::getObjectToArray($paginator->getItemsByPage($pageNumber));
                         $retorno['page'] = $paginator;
                     } else {
                         $statement = $sql->prepareStatementForSqlObject($select);
@@ -1471,7 +1470,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                         $paginator->setPageRange(5);
                         $paginator->setCurrentPageNumber($pageNumber);
 
-                        $retorno['db'] = self::$resultSetPrototype->initialize($paginator->getCurrentItems())->toArray();
+                        $retorno['db'] = \Cityware\Format\Arrays::getObjectToArray($paginator->getCurrentItems());
                         $retorno['page'] = $paginator;
                     } else {
                         $retorno = self::$resultSetPrototype->initialize($rowSet)->toArray();
