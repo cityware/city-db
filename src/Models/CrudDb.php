@@ -96,10 +96,10 @@ class CrudDb {
             
             /** Definição de gravação das datas de cadastro e atualização */
             if (strtolower($typeAction) == 'add') {
-                $this->setRequestValue('dta_cadastro', date('Y-m-d H:m:s'));
-                $this->setRequestValue('dta_atualizacao', date('Y-m-d H:m:s'));
+                $this->setRequestValue('dte_register', date('Y-m-d H:m:s'));
+                $this->setRequestValue('dte_update', date('Y-m-d H:m:s'));
             } else {
-                $this->setRequestValue('dta_atualizacao', date('Y-m-d H:m:s'));
+                $this->setRequestValue('dte_update', date('Y-m-d H:m:s'));
             }
             
             /** Limpesa de campos não necessários para a tabela */
