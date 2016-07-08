@@ -728,7 +728,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                     } else {
                         $statement = $sql->prepareStatementForSqlObject($select);
                         $results = $statement->execute();
-                        
+
                         $retorno = self::$resultSetPrototype->initialize($results)->toArray();
                     }
                 }
