@@ -348,8 +348,12 @@ class Zend extends AdapterAbstract implements AdapterInterface {
      * @param string $varSqlGroupBy
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
-    public function groupBy($varSqlGroupBy) {
+    public function groupBy($varSqlGroupBy, $expr = false) {
+        if ($expr) {
+            array_push(self::$varSqlGroupBy, new Expression($varSqlGroupBy));
+        } else {
         array_push(self::$varSqlGroupBy, $varSqlGroupBy);
+        }
         return $this;
     }
 
