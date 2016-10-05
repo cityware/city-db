@@ -20,7 +20,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
 
     private $connAdapter = Array(), $varExecuteLog = false, $aSession = Array(), $varStatusTransaction = false,
             $varConfigAdapter = null;
-    protected static $session, $varDebug, $varExplan, $serviceLocator, $resultSetPrototype;
+    protected static $session, $varDebug, $varDebugRaw, $varExplan, $serviceLocator, $resultSetPrototype;
     protected static $varSqlSelect = Array(),
             $varSqlSelectFromColumns = Array(),
             $varSqlSelectJoinColumns = Array(),
@@ -95,8 +95,9 @@ class Zend extends AdapterAbstract implements AdapterInterface {
      * @param boolean $debug
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
-    public function setDebug($debug = false) {
+    public function setDebug($debug = false, $debugRaw = false) {
         self::$varDebug = $debug;
+        self::$varDebugRaw = $debugRaw;
         return $this;
     }
 
@@ -352,7 +353,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
         if ($expr) {
             array_push(self::$varSqlGroupBy, new Expression($varSqlGroupBy));
         } else {
-        array_push(self::$varSqlGroupBy, $varSqlGroupBy);
+            array_push(self::$varSqlGroupBy, $varSqlGroupBy);
         }
         return $this;
     }
@@ -1955,11 +1956,17 @@ class Zend extends AdapterAbstract implements AdapterInterface {
      * @param type $query
      */
     private function debugQuery($query) {
-        $return = null;
-        $return .= "<pre>";
-        $return .= \Cityware\Format\Sql::format($query);
-        $return .= "</pre>";
-        echo $return;
+        if (self::$varDebugRaw == true) {
+            $return = null;
+            $return .= $query;
+            echo $return;
+        } else {
+            $return = null;
+            $return .= "<pre>";
+            $return .= \Cityware\Format\Sql::format($query);
+            $return .= "</pre>";
+            echo $return;
+        }
         exit;
     }
 
