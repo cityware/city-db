@@ -14,17 +14,18 @@ abstract class AdapterAbstract {
 
     /**
      * Função que define a exibição do debug
-     * @param type $debug
+     * @param boolean $debug
+     * @param boolean $debugRaw
      */
-    abstract public function setDebug($debug = false);
-    
+    abstract public function setDebug($debug = false, $debugRaw = false);
+
     /**
      * Função de definição de ativação de LOG
-     * @param type $log
+     * @param boolean $log
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function setLog($log = false);
-           
+
     /**
      * Função que define se haverá retorno no INSERT
      * @param type $varReturnInsertId
@@ -37,14 +38,14 @@ abstract class AdapterAbstract {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function setAdapter($adapterName = null);
-    
+
     /**
      * Função que define a exibição do debug
      * @param boolean $explan
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function setExplan($explan = false);
-    
+
     /**
      * FUNCAO QUE DEFINE A CHAVE DE VERIFICAÇÃO DE CACHE
      * @param string $cacheKey NOME DA CHAVE
@@ -56,7 +57,7 @@ abstract class AdapterAbstract {
      * FUNCAO QUE DEFINE O PARAMETRO SELECT
      * @param string $varSqlSelect NOME DO CAMPO PARA REALIZAR O SELECT
      * @param string $varSqlSelectAlias
-     * @param string $isExpression
+     * @param boolean $isExpression
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function select($varSqlSelect, $varSqlSelectAlias = null, $isExpression = false);
@@ -149,7 +150,7 @@ abstract class AdapterAbstract {
     /**
      * FUNCAO QUE DEFINE O PARAMETRO ORDERBY
      * @param string $varSqlOrderBy
-     * @param string $expr
+     * @param boolean $expr
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function orderBy($varSqlOrderBy, $expr = false);
@@ -182,7 +183,7 @@ abstract class AdapterAbstract {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function rollback($adapterName = null);
-    
+
     /**
      * Função utilizada para definir chamada de TRANSACTION identificada
      * @param string $transactionId
@@ -206,13 +207,13 @@ abstract class AdapterAbstract {
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function preparedRollback($transactionId, $adapterName = null);
-    
+
     /**
      * Função de definição de commit
      * @return \Cityware\Db\Adapter\ZendAdapter
      */
     abstract public function closeConnection();
-    
+
     /**
      * FUNCAO QUE EXECUTA O COMANDO SELECT NO BANCO DE DADOS OU BUSCA NO CACHE GRAVADO
      * @param  boolean $activationPaginator
@@ -232,14 +233,14 @@ abstract class AdapterAbstract {
      * @throws \Exception
      */
     abstract public function executeUnionSelectQueryCache($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
-    
+
     /**
      * FUNCAO QUE MONTA O COMANDO SUB-SELECT NO BANCO DE DADOS E RETORNA A STRING
      * @return mixed
      * @throws Exception
      */
     abstract public function executeSubSelectQuery();
-    
+
     /**
      * FUNCAO QUE DEFINE A QUERY COMO SENDO SUBQUERY DE UNION
      * @return boolean
@@ -264,7 +265,7 @@ abstract class AdapterAbstract {
      * @return mixed
      * @throws \Exception
      */
-    abstract public function executeSelectQuery($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);    
+    abstract public function executeSelectQuery($activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
 
     /**
      * FUNCAO QUE EXECUTA O STATEMENT DO COMANDO SELECT NO BANCO DE DADOS
@@ -272,14 +273,14 @@ abstract class AdapterAbstract {
      * @throws \Exception
      */
     abstract public function statementSelectQuery();
-    
+
     /**
      * Função que converte o resultado do EXECUTE em array
      * @param \Zend\Db\Adapter\Driver\Pdo\Result $results
      * @return type
      */
     abstract public function toArrayFromExecute(\Zend\Db\Adapter\Driver\Pdo\Result $results);
-    
+
     /**
      * FUNCAO QUE EXECUTA UM COMANDO QUALQUER NO BANCO DE DADOS OU BUSCA NO CACHE GRAVADO
      * ESTA FUNCAO MASCARA O USO DO ZEND_DB NO SISTEMA
@@ -303,7 +304,7 @@ abstract class AdapterAbstract {
      * @throws \Exception
      */
     abstract public function executeSqlQuery($varSqlQuery, $activationPaginator = false, $pageNumber = 1, $limitPerPage = 10);
-    
+
     /**
      * FUNCAO QUE EXECUTA O COMANDO UPDATE NO BANCO DE DADOS
      * @return mixed
@@ -325,7 +326,7 @@ abstract class AdapterAbstract {
      */
 
     abstract public function executeDeleteQuery();
-    
+
     /*
      * FUNCAO QUE EXECUTA O COMANDO DELETE NO BANCO DE DADOS
      * @return boolean
@@ -333,7 +334,7 @@ abstract class AdapterAbstract {
      */
 
     abstract public function statementDeleteQuery();
-    
+
     /**
      * Função que pega previamente o ID do registro a ser inserido
      * @param  string   $sequence
@@ -348,7 +349,7 @@ abstract class AdapterAbstract {
      * @return string
      */
     abstract public function getPrimaryColumn($table, $schema);
-    
+
     /**
      * Função que retorna o post formatado de acordo com a tabela
      * @param array $arrayPost
