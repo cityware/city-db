@@ -1935,7 +1935,7 @@ class Zend extends AdapterAbstract implements AdapterInterface {
                 $select = $sql->select($rawState['table']);
                 foreach ($rawState['columns'] as $key => $value) {
                     if (!empty($rawState['values'][$key])) {
-                        $select->where("{$value} = '{$rawState['values'][$key]}'");
+                        $select->where(new \Zend\Db\Sql\Predicate\Literal("{$value} = '{$rawState['values'][$key]}'"));
                     } else {
                         $select->where("{$value} IS NULL");
                     }
