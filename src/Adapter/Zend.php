@@ -494,6 +494,21 @@ class Zend extends AdapterAbstract implements AdapterInterface {
         }
         return $this;
     }
+    
+    /**
+     * Função de execução de SEQUENCE
+     * @return $return
+     */
+    public function executeSequence() {
+        $return = null;
+        if (empty(self::$varSqlSequence)) {
+            throw new \Exception('Não foi definido a SEQUENCE para execução!', 500);
+        } else {
+            $query = "SELECT nextval('".self::$varSqlSequence."');";
+            $return = $this->executeSqlQuery($query);
+        }
+        return $return;
+    }
 
     /**
      * Função de definição de commit
